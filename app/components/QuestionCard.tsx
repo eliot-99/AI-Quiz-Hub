@@ -138,7 +138,7 @@ export default function QuestionCard({
         transition={{ delay: 0.7 }}
         className="flex justify-end"
       >
-        <button
+        <motion.button
           onClick={onNext}
           disabled={!selectedAnswer && timeLeft > 0}
           className={`px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${
@@ -159,7 +159,7 @@ export default function QuestionCard({
           ) : (
             'Next Question →'
           )}
-        </button>
+        </motion.button>
       </motion.div>
 
       {/* Skip Notice */}
