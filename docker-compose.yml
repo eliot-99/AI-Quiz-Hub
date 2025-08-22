@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  ai-quiz-hub:
+    build: .
+    ports:
+      - "3000:3000"
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+    env_file:
+      - .env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./public/Audio:/app/public/Audio:ro
+    networks:
+      - quiz-network
+
+networks:
+  quiz-network:
+    driver: bridge
