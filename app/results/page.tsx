@@ -131,7 +131,7 @@ export default function ResultsPage() {
       speed: avgTime <= 15 ? 'Fast' : avgTime <= 30 ? 'Moderate' : 'Slow',
       consistency: (slowestTime - fastestTime) <= 10 ? 'Very Consistent' : (slowestTime - fastestTime) <= 20 ? 'Consistent' : 'Variable',
       accuracy: accuracy >= 80 ? 'Excellent' : accuracy >= 60 ? 'Good' : accuracy >= 40 ? 'Fair' : 'Needs Improvement',
-      recommendations: []
+      recommendations: [] as string[]
     };
 
     // Generate recommendations
