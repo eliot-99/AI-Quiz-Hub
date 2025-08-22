@@ -405,7 +405,7 @@ export default function AboutPage() {
                         transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                       />
                       <Image
-                        src="/assets/Asset1.png"
+                        src="/Asset1.png"
                         alt="Saptarshi Ghosh"
                         width={128}
                         height={128}
