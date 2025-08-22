@@ -302,7 +302,7 @@ export default function QuizPage() {
             
             <div className="flex items-center space-x-6">
               {/* Timer */}
-              {quizConfig?.timePerQuestion > 0 && (
+              {quizConfig && quizConfig.timePerQuestion > 0 && (
                 <div className="flex items-center space-x-3">
                   <div className="relative w-16 h-16">
                     <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
@@ -317,7 +317,7 @@ export default function QuizPage() {
                         fill="none"
                         stroke={timeLeft <= 5 ? "#ef4444" : "#d946ef"}
                         strokeWidth="2"
-                        strokeDasharray={`${(timeLeft / (quizConfig?.timePerQuestion || 30)) * 100}, 100`}
+                        strokeDasharray={`${(timeLeft / quizConfig.timePerQuestion) * 100}, 100`}
                         className="transition-all duration-1000"
                       />
                     </svg>
