@@ -143,6 +143,75 @@ app.post('/api/submit-quiz', async (req, res) => {
   }
 });
 
+// SSE endpoint to stream question batches as they are generated
+app.get('/api/generate-quiz-stream', async (req, res) => {
+  try {
+    const topic = String(req.query.topic || '').trim();
+    const difficulty = String(req.query.difficulty || '').toLowerCase();
+    const questionCount = Math.max(1, Math.min(parseInt(req.query.questionCount || '50', 10), 100));
+    const language = String(req.query.language || 'english').toLowerCase();
+    const batchSize = parseInt(req.query.batchSize || '10', 10);
+    const parallel = parseInt(req.query.parallel || '3', 10);
+
+    if (!topic || !difficulty) {
+      res.status(400).json({ error: 'Topic and difficulty are required' });
+      return;
+    }
+
+    const validDifficulties = ['easy', 'medium', 'hard'];
+    if (!validDifficulties.includes(difficulty)) {
+      res.status(400).json({ error: 'Difficulty must be easy, medium, or hard' });
+      return;
+    }
+
+    const validLanguages = ['english', 'hindi', 'bengali'];
+    if (!validLanguages.includes(language)) {
+      res.status(400).json({ error: 'Language must be english, hindi, or bengali' });
+      return;
+    }
+
+    // Setup SSE headers
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    // If you need CORS for SSE across domains, ensure cors() is configured. We already use cors().
+
+    const send = (event, data) => {
+      res.write(`event: ${event}\n`);
+      res.write(`data: ${JSON.stringify(data)}\n\n`);
+    };
+
+    req.on('close', () => {
+      console.log('🔌 Client disconnected from SSE');
+    });
+
+    console.log(`📡 Streaming ${questionCount} questions on "${topic}" (${difficulty}/${language}) in batches...`);
+
+    await aiService.generateQuestionsInBatches(topic, difficulty, questionCount, language, {
+      batchSize,
+      maxParallel: parallel,
+      onBatch: (batch, info) => {
+        send('batch', {
+          index: info.index,
+          totalBatches: info.totalBatches,
+          count: batch.length,
+          questions: batch
+        });
+      }
+    });
+
+    send('done', { message: 'complete' });
+    res.end();
+  } catch (error) {
+    console.error('❌ Error in SSE generation:', error);
+    try {
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
+    } catch {}
+    res.end();
+  }
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
